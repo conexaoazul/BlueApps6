@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View -->
+        <record id="view_helpdesk_notification_form" model="ir.ui.view">
+            <field name="name">helpdesk.notification.form</field>
+            <field name="model">helpdesk.notification</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="manager_email"/>
+                            <field name="last_execution" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="view_helpdesk_notification_tree" model="ir.ui.view">
+            <field name="name">helpdesk.notification.tree</field>
+            <field name="model">helpdesk.notification</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="manager_email"/>
+                    <field name="last_execution"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_helpdesk_notification" model="ir.actions.act_window">
+            <field name="name">Helpdesk Notifications</field>
+            <field name="res_model">helpdesk.notification</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="menu_helpdesk_notification"
+                  name="Notifications"
+                  parent="helpdesk.helpdesk_menu_config"
+                  action="action_helpdesk_notification"
+                  sequence="100"/>
+
+        <!-- Scheduled Action -->
+        <record id="ir_cron_send_helpdesk_daily_update" model="ir.cron">
+            <field name="name">Send Helpdesk Daily Update</field>
+            <field name="model_id" ref="model_helpdesk_notification"/>
+            <field name="state">code</field>
+            <field name="code">model._send_daily_update()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

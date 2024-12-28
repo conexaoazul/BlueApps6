@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="email_template_helpdesk_daily_update" model="mail.template">
+            <field name="name">Helpdesk Daily Update</field>
+            <field name="model_id" ref="model_helpdesk_notification"/>
+            <field name="subject">Helpdesk Tickets Update Report - ${ctx.get('date')}</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p>Hello,</p>
+                    <p>Here is the summary of helpdesk tickets that were updated on ${ctx.get('date')}:</p>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Ticket Number</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Name</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Stage</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Priority</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Last Update</th>
+                        </tr>
+                        % for ticket in ctx.get('ticket_info', []):
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['number']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['name']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['stage']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['priority']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['last_update']}</td>
+                        </tr>
+                        % endfor
+                    </table>
+                    <p>Best regards,<br/>Helpdesk Team</p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>
