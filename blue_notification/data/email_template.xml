@@ -2,33 +2,108 @@
 <odoo>
     <data>
         <record id="email_template_helpdesk_daily_update" model="mail.template">
-            <field name="name">Helpdesk Daily Update</field>
+            <field name="name">Relatório Diário do Helpdesk</field>
             <field name="model_id" ref="model_helpdesk_notification"/>
-            <field name="subject">Helpdesk Tickets Update Report - ${ctx.get('date')}</field>
+            <field name="subject">Relatório de Performance do Helpdesk - ${ctx.get('date')}</field>
             <field name="email_from">{{ user.email_formatted }}</field>
             <field name="body_html" type="html">
-                <div style="margin: 0px; padding: 0px;">
-                    <p>Hello,</p>
-                    <p>Here is the summary of helpdesk tickets that were updated on ${ctx.get('date')}:</p>
-                    <table style="width:100%; border-collapse: collapse;">
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Ticket Number</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Name</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Stage</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Priority</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Last Update</th>
-                        </tr>
-                        % for ticket in ctx.get('ticket_info', []):
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['number']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['name']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['stage']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['priority']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${ticket['last_update']}</td>
-                        </tr>
-                        % endfor
-                    </table>
-                    <p>Best regards,<br/>Helpdesk Team</p>
+                <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                    <div style="background-color: #2C3E50; color: white; padding: 20px; text-align: center;">
+                        <h2>Relatório de Performance do Helpdesk</h2>
+                        <p>Data: ${ctx.get('date')}</p>
+                    </div>
+
+                    <!-- Métricas Gerais da Equipe -->
+                    <div style="padding: 20px; background-color: #f8f9fa; margin-top: 20px;">
+                        <h3 style="color: #2C3E50;">Métricas da Equipe ${ctx.get('config').team_id.name}</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background-color: #34495e; color: white;">
+                                <th style="padding: 10px; text-align: center;">Total de Tickets</th>
+                                <th style="padding: 10px; text-align: center;">SLA</th>
+                                <th style="padding: 10px; text-align: center;">Satisfação</th>
+                            </tr>
+                            <tr style="background-color: white;">
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${ctx.get('team_metrics').get('total_tickets', 0)}
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${'{:.1f}%'.format(ctx.get('team_metrics').get('sla_performance', 0))}
+                                    <br/>
+                                    <span style="color: ${ctx.get('sla_status') == 'Meta Atingida' and '#27ae60' or '#e74c3c'}">
+                                        ${ctx.get('sla_status')}
+                                    </span>
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${'{:.1f}%'.format(ctx.get('team_metrics').get('avg_satisfaction', 0) * 20)}
+                                    <br/>
+                                    <span style="color: ${ctx.get('satisfaction_status') == 'Meta Atingida' and '#27ae60' or '#e74c3c'}">
+                                        ${ctx.get('satisfaction_status')}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Performance Individual -->
+                    <div style="padding: 20px; margin-top: 20px;">
+                        <h3 style="color: #2C3E50;">Performance Individual</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background-color: #34495e; color: white;">
+                                <th style="padding: 10px; text-align: left;">Agente</th>
+                                <th style="padding: 10px; text-align: center;">Tickets</th>
+                                <th style="padding: 10px; text-align: center;">Fechados</th>
+                                <th style="padding: 10px; text-align: center;">SLA</th>
+                                <th style="padding: 10px; text-align: center;">Pontos</th>
+                            </tr>
+                            % for agent_name, perf in ctx.get('agent_performances', {}).items():
+                            <tr style="background-color: white;">
+                                <td style="padding: 10px; border: 1px solid #ddd;">${agent_name}</td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${perf.get('total_tickets', 0)}</td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${perf.get('closed_tickets', 0)}</td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${'{:.1f}%'.format(perf.get('sla_performance', 0))}
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    <strong>${perf.get('points_earned', 0)}</strong>
+                                </td>
+                            </tr>
+                            % endfor
+                        </table>
+                    </div>
+
+                    <!-- Distribuição por Prioridade -->
+                    % if ctx.get('team_metrics', {}).get('tickets_by_priority'):
+                    <div style="padding: 20px; background-color: #f8f9fa; margin-top: 20px;">
+                        <h3 style="color: #2C3E50;">Distribuição por Prioridade</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background-color: #34495e; color: white;">
+                                <th style="padding: 10px; text-align: center;">Baixa</th>
+                                <th style="padding: 10px; text-align: center;">Média</th>
+                                <th style="padding: 10px; text-align: center;">Alta</th>
+                                <th style="padding: 10px; text-align: center;">Urgente</th>
+                            </tr>
+                            <tr style="background-color: white;">
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${ctx.get('team_metrics')['tickets_by_priority']['baixa']}
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${ctx.get('team_metrics')['tickets_by_priority']['media']}
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${ctx.get('team_metrics')['tickets_by_priority']['alta']}
+                                </td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
+                                    ${ctx.get('team_metrics')['tickets_by_priority']['urgente']}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    % endif
+
+                    <div style="margin-top: 30px; padding: 20px; text-align: center; color: #7f8c8d; font-size: 12px;">
+                        <p>Este é um email automático do sistema de Helpdesk da Conexão Azul.</p>
+                        <p>Para mais detalhes, acesse o sistema.</p>
+                    </div>
                 </div>
             </field>
         </record>

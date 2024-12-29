@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Análise de Performance do Helpdesk -->
+        <record id="view_helpdesk_performance_pivot" model="ir.ui.view">
+            <field name="name">helpdesk.ticket.pivot.performance</field>
+            <field name="model">helpdesk.ticket</field>
+            <field name="arch" type="xml">
+                <pivot string="Análise de Performance" sample="1">
+                    <field name="team_id" type="row"/>
+                    <field name="create_date" type="col" interval="week"/>
+                    <field name="sla_status" type="row"/>
+                    <field name="rating_avg" type="measure"/>
+                    <field name="response_time" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Gráfico de Performance -->
+        <record id="view_helpdesk_performance_graph" model="ir.ui.view">
+            <field name="name">helpdesk.ticket.graph.performance</field>
+            <field name="model">helpdesk.ticket</field>
+            <field name="arch" type="xml">
+                <graph string="Performance do Helpdesk" type="line" sample="1">
+                    <field name="create_date" type="row" interval="week"/>
+                    <field name="team_id" type="col"/>
+                    <field name="rating_avg" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pesquisa de Performance -->
+        <record id="view_helpdesk_performance_search" model="ir.ui.view">
+            <field name="name">helpdesk.ticket.search.performance</field>
+            <field name="model">helpdesk.ticket</field>
+            <field name="arch" type="xml">
+                <search string="Análise de Performance">
+                    <field name="name"/>
+                    <field name="team_id"/>
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <separator/>
+                    <filter string="Meus Tickets" name="my_tickets" domain="[('user_id', '=', uid)]"/>
+                    <filter string="Minha Equipe" name="my_team" domain="[('team_id.member_ids', 'in', uid)]"/>
+                    <separator/>
+                    <filter string="SLA Atingido" name="sla_reached" domain="[('sla_status', '=', 'reached')]"/>
+                    <filter string="SLA Falhou" name="sla_failed" domain="[('sla_status', '=', 'failed')]"/>
+                    <separator/>
+                    <filter string="Alta Satisfação" name="high_rating" domain="[('rating_avg', '>=', 4)]"/>
+                    <filter string="Baixa Satisfação" name="low_rating" domain="[('rating_avg', '&lt;', 3)]"/>
+                    <group expand="0" string="Agrupar Por">
+                        <filter string="Equipe" name="team" context="{'group_by': 'team_id'}"/>
+                        <filter string="Agente" name="user" context="{'group_by': 'user_id'}"/>
+                        <filter string="Status SLA" name="sla_status" context="{'group_by': 'sla_status'}"/>
+                        <separator/>
+                        <filter string="Mês" name="month" context="{'group_by': 'create_date:month'}"/>
+                        <filter string="Semana" name="week" context="{'group_by': 'create_date:week'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action para Análise de Performance -->
+        <record id="action_helpdesk_performance_analysis" model="ir.actions.act_window">
+            <field name="name">Análise de Performance</field>
+            <field name="res_model">helpdesk.ticket</field>
+            <field name="view_mode">pivot,graph</field>
+            <field name="search_view_id" ref="view_helpdesk_performance_search"/>
+            <field name="context">{
+                'search_default_month': 1,
+                'search_default_team': 1,
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Nenhum dado de performance encontrado
+                </p>
+                <p>
+                    Aqui você pode analisar a performance do helpdesk por diferentes métricas.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu para Análise de Performance -->
+        <menuitem id="menu_helpdesk_performance_analysis"
+                  name="Análise de Performance"
+                  parent="helpdesk.helpdesk_menu_reporting"
+                  action="action_helpdesk_performance_analysis"
+                  sequence="20"/>
+    </data>
+</odoo>
