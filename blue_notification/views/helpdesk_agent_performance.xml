@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de Performance do Agente -->
+        <record id="view_helpdesk_agent_performance_tree" model="ir.ui.view">
+            <field name="name">helpdesk.agent.performance.tree</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <tree string="Performance dos Agentes" create="false" delete="false">
+                    <field name="name"/>
+                    <field name="helpdesk_ticket_count"/>
+                    <field name="helpdesk_closed_count"/>
+                    <field name="helpdesk_sla_success_rate"/>
+                    <field name="helpdesk_satisfaction_rate"/>
+                    <field name="helpdesk_response_time"/>
+                    <field name="helpdesk_points"/>
+                    <field name="helpdesk_badge_count"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista de Performance do Agente (Formulário) -->
+        <record id="view_helpdesk_agent_performance_form" model="ir.ui.view">
+            <field name="name">helpdesk.agent.performance.form</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <form string="Performance do Agente" create="false" delete="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Métricas Gerais">
+                                <field name="helpdesk_ticket_count"/>
+                                <field name="helpdesk_closed_count"/>
+                                <field name="helpdesk_sla_success_rate"/>
+                                <field name="helpdesk_satisfaction_rate"/>
+                            </group>
+                            <group string="Gamificação">
+                                <field name="helpdesk_points"/>
+                                <field name="helpdesk_badge_count"/>
+                                <field name="helpdesk_level"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Conquistas" name="badges">
+                                <field name="helpdesk_badge_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="description"/>
+                                        <field name="level"/>
+                                        <field name="granted_date"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Histórico" name="history">
+                                <field name="helpdesk_ticket_ids">
+                                    <tree>
+                                        <field name="number"/>
+                                        <field name="name"/>
+                                        <field name="create_date"/>
+                                        <field name="close_date"/>
+                                        <field name="sla_status"/>
+                                        <field name="rating_avg"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action para Performance dos Agentes -->
+        <record id="action_helpdesk_agent_performance" model="ir.actions.act_window">
+            <field name="name">Performance dos Agentes</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('share', '=', False), ('helpdesk_ticket_count', '>', 0)]</field>
+            <field name="context">{'default_type': 'helpdesk_agent'}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_helpdesk_agent_performance_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_helpdesk_agent_performance_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Nenhum agente encontrado
+                </p>
+                <p>
+                    Aqui você pode ver a performance de todos os agentes do helpdesk.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu para Performance dos Agentes -->
+        <menuitem id="menu_helpdesk_agent_performance"
+                  name="Performance dos Agentes"
+                  parent="helpdesk.helpdesk_menu_reporting"
+                  action="action_helpdesk_agent_performance"
+                  sequence="10"/>
+    </data>
+</odoo>

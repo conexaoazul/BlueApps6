@@ -1,3 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_helpdesk_notification_manager,helpdesk.notification.manager,model_helpdesk_notification,helpdesk.group_helpdesk_manager,1,1,1,1
-access_helpdesk_notification_user,helpdesk.notification.user,model_helpdesk_notification,helpdesk.group_helpdesk_user,1,0,0,0
+access_helpdesk_notification_manager,helpdesk.notification.manager,model_helpdesk_notification,blue_notification.group_helpdesk_notification_manager,1,1,1,1
+access_helpdesk_notification_user,helpdesk.notification.user,model_helpdesk_notification,blue_notification.group_helpdesk_notification_user,1,0,0,0

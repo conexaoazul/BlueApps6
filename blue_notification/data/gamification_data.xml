@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Categorias de Conquistas -->
+        <record id="badge_category_helpdesk" model="gamification.badge.category">
+            <field name="name">Conquistas Helpdesk</field>
+        </record>
+
+        <!-- Conquistas (Badges) -->
+        <record id="rising_star_badge" model="gamification.badge">
+            <field name="name">Estrela em Ascensão</field>
+            <field name="description">Conquistado ao atingir 100 pontos no atendimento ao cliente.</field>
+            <field name="rule_auth">everyone</field>
+            <field name="level">bronze</field>
+            <field name="category_id" ref="badge_category_helpdesk"/>
+            <field name="image" type="base64" file="blue_notification/static/img/rising_star.png"/>
+        </record>
+
+        <record id="professional_badge" model="gamification.badge">
+            <field name="name">Profissional do Helpdesk</field>
+            <field name="description">Conquistado ao atingir 500 pontos no atendimento ao cliente.</field>
+            <field name="rule_auth">everyone</field>
+            <field name="level">silver</field>
+            <field name="category_id" ref="badge_category_helpdesk"/>
+            <field name="image" type="base64" file="blue_notification/static/img/professional.png"/>
+        </record>
+
+        <record id="expert_badge" model="gamification.badge">
+            <field name="name">Especialista em Atendimento</field>
+            <field name="description">Conquistado ao atingir 1000 pontos no atendimento ao cliente.</field>
+            <field name="rule_auth">everyone</field>
+            <field name="level">gold</field>
+            <field name="category_id" ref="badge_category_helpdesk"/>
+            <field name="image" type="base64" file="blue_notification/static/img/expert.png"/>
+        </record>
+
+        <!-- Desafios -->
+        <record id="challenge_daily_tickets" model="gamification.challenge">
+            <field name="name">Desafio Diário de Tickets</field>
+            <field name="period">daily</field>
+            <field name="visibility_mode">personal</field>
+            <field name="user_domain">[('share', '=', False)]</field>
+            <field name="state">inprogress</field>
+        </record>
+
+        <record id="goal_daily_tickets" model="gamification.goal.definition">
+            <field name="name">Tickets Resolvidos no Dia</field>
+            <field name="description">Número de tickets resolvidos hoje</field>
+            <field name="computation_mode">count</field>
+            <field name="display_mode">progress</field>
+            <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+            <field name="domain">[('user_id', '=', 'user.id'), ('stage_id.is_close', '=', True)]</field>
+            <field name="batch_mode">True</field>
+            <field name="batch_distinctive_field" ref="helpdesk.field_helpdesk_ticket__user_id"/>
+            <field name="batch_user_expression">user.id</field>
+        </record>
+
+        <record id="line_tickets_daily" model="gamification.challenge.line">
+            <field name="definition_id" ref="goal_daily_tickets"/>
+            <field name="challenge_id" ref="challenge_daily_tickets"/>
+            <field name="target_goal">5</field>
+            <field name="sequence">1</field>
+        </record>
+    </data>
+</odoo>
